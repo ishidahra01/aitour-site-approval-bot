@@ -1,5 +1,5 @@
 """
-FastAPI backend for the Microsoft Support Agent.
+FastAPI backend for the Site Approval Bot.
 
 Endpoints:
   GET  /models            — list available Copilot models
@@ -36,7 +36,7 @@ logger = logging.getLogger(__name__)
 async def lifespan(app: FastAPI):
     try:
         await get_agent().start()
-        logger.info("Support agent started successfully.")
+        logger.info("Site Approval Bot agent started successfully.")
     except Exception as exc:
         logger.warning(
             "Could not start Copilot SDK agent: %s. "
@@ -51,8 +51,8 @@ async def lifespan(app: FastAPI):
 
 
 app = FastAPI(
-    title="Microsoft Support Agent API",
-    description="Backend for the Copilot SDK-powered enterprise support agent",
+    title="Site Approval Bot API",
+    description="Backend for the Site Approval Bot powered by GitHub Copilot SDK and Work IQ",
     version="1.0.0",
     lifespan=lifespan,
 )

@@ -1,13 +1,13 @@
 """
-Enterprise Intelligence Agent — Copilot SDK orchestrator.
+Site Approval Bot — Copilot SDK orchestrator.
 
 Manages the lifecycle of GitHub Copilot SDK sessions and registers
-all custom tools (MS Docs, Foundry IQ enterprise knowledge, Foundry deep
-research, Work IQ MCP, PowerPoint).
+all custom tools (Work IQ, Foundry IQ enterprise knowledge, Foundry deep
+research, PowerPoint).
 
-An enterprise investigation agent that combines Foundry IQ, Work IQ, and
-Fabric IQ to analyze issues using organizational knowledge, collaboration
-context, and operational data.
+An AI agent that automatically collects past discussion context via Work IQ
+and generates structured site approval reports when municipality permission
+emails arrive.
 """
 from __future__ import annotations
 
@@ -25,8 +25,9 @@ from tools import (
     foundry_knowledge_tool,
     generate_powerpoint_tool,
     query_ms_docs_tool,
+    work_iq_tool,
 )
-from skills import SUPPORT_INVESTIGATION_SYSTEM_MESSAGE
+from skills import SITE_APPROVAL_SYSTEM_MESSAGE
 
 logger = logging.getLogger(__name__)
 
@@ -189,7 +190,7 @@ def _build_client() -> CopilotClient:
 
 class SupportAgent:
     """
-    Wraps the GitHub Copilot SDK to provide a multi-tool support agent.
+    Wraps the GitHub Copilot SDK to provide the Site Approval Bot agent.
 
     One shared CopilotClient is created per application instance.
     Individual chat conversations each get their own CopilotSession.
@@ -245,13 +246,14 @@ class SupportAgent:
                 "session_id": session_id,
                 "model": model,
                 "streaming": True,
-                "system_message": {"content": SUPPORT_INVESTIGATION_SYSTEM_MESSAGE},
+                "system_message": {"content": SITE_APPROVAL_SYSTEM_MESSAGE},
                 "on_permission_request": PermissionHandler.approve_all,
                 "tools": [
-                    query_ms_docs_tool,
+                    work_iq_tool,
                     foundry_knowledge_tool,
                     foundry_deep_research_tool,
                     generate_powerpoint_tool,
+                    query_ms_docs_tool,
                 ],
             }
 
