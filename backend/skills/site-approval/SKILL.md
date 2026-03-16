@@ -21,12 +21,9 @@ When triggered (either by a municipality permission email notification or user r
 ### Step 1 — Collect Organizational Context (Work IQ MCP)
 
 Use the available Work IQ MCP tools to gather comprehensive context:
-- Search for municipality coordination history (e.g., height restrictions, color specifications, resident briefings)
-- Search for RF/design constraints and simulation results (e.g., small cell alternatives)
-- Search for meeting minutes and action items
-- Search for cost approval status and outstanding decisions
-
-Make at least 2–3 targeted queries to ensure comprehensive coverage before proceeding.
+- Translate any Japanese search intent into natural English before sending queries to Work IQ MCP.
+- Start with one comprehensive English query that covers municipality coordination history, RF/design constraints, meeting minutes/action items, and cost approval or outstanding decisions.
+- If the first query returns no results, incomplete context, or fails to retrieve the needed data, retry with a revised or narrower English query.
 
 ### Step 2 — Analyze Findings
 
@@ -37,9 +34,9 @@ Make at least 2–3 targeted queries to ensure comprehensive coverage before pro
 
 ### Step 3 — Generate Approval Report
 
-- Produce a concise conversational summary first
+- Produce a concise conversational summary in Japanese first
 - Then output the full structured report in a fenced code block using the
-  identifier `site-approval-report` (this renders in the right panel)
+  identifier `site-approval-report` in Japanese (this renders in the right panel)
 
 The report code block MUST always be included when a full analysis is performed.
 
@@ -49,45 +46,47 @@ Always output the structured report in the following format inside a
 `site-approval-report` fenced code block:
 
 ```site-approval-report
-Site Approval Report
-====================
+基地局設置承認レポート
+======================
 
-Site: [Site name / location]
-Triggered by: [Trigger event]
-Date: [Date]
+対象サイト: [サイト名 / 場所]
+トリガー: [起点となったイベント]
+日付: [日付]
 
-Municipality Conditions
------------------------
-- [Condition 1]: [Status — satisfied/pending/unknown]
-- [Condition 2]: [Status]
-- [Additional conditions as needed]
+自治体条件
+----------
+- [条件1]: [状態 - 充足 / 保留 / 不明]
+- [条件2]: [状態]
+- [必要に応じて追加]
 
-RF Design Conditions
---------------------
-- [Condition 1]: [Status]
-- [Alternative/mitigation if needed]
+RF設計条件
+----------
+- [条件1]: [状態]
+- [必要な代替案や緩和策]
 
-Status Summary
+ステータス要約
 --------------
-- Municipality requirements: [satisfied / partially satisfied / pending]
-- RF design: [satisfied / pending cost approval / requires action]
-- Outstanding issues: [list or "none"]
+- 自治体要件: [充足 / 一部充足 / 保留]
+- RF設計: [充足 / コスト承認待ち / 要対応]
+- 未解決事項: [一覧 または "なし"]
 
-Recommended Actions
--------------------
-1. [Action item 1] — Responsible: [Person/team]
-2. [Action item 2] — Responsible: [Person/team]
+推奨アクション
+--------------
+1. [アクション1] - 担当: [担当者 / チーム]
+2. [アクション2] - 担当: [担当者 / チーム]
 
-Approval Required From
-----------------------
-- [Person 1] ([Role/reason])
-- [Person 2] ([Role/reason])
+承認依頼先
+----------
+- [人物1] ([役割 / 理由])
+- [人物2] ([役割 / 理由])
 ```
 
 ## Guidelines
 
 - Always use the available Work IQ MCP tools before generating the report — do not guess context.
-- Make at least 2–3 Work IQ queries to ensure comprehensive coverage.
+- Work IQ MCP queries must be sent in English. If the user request or source material is in Japanese, translate the search intent into English first and then query Work IQ.
+- Start with one comprehensive Work IQ query, and only retry with adjusted queries when the result set is empty, clearly insufficient, or the needed data could not be retrieved.
+- All final user-facing output must be in Japanese, including the conversational summary and the `site-approval-report` code block.
 - Be concise and action-oriented in the conversational summary.
 - The `site-approval-report` code block content must be plain text (no markdown inside).
 - Always identify specific named individuals for approval requests when available.
