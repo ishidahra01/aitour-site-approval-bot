@@ -3,23 +3,25 @@
 import { useState } from "react";
 import { ToolExecution } from "@/app/lib/types";
 
-const TOOL_ICONS: Record<string, string> = {
-  query_ms_docs_tool: "📖",
-  foundry_deep_research_tool: "🔬",
-  query_workiq_tool: "🏢",
-  work_iq_tool: "🏢",
-  foundry_knowledge_tool: "🗄️",
-  generate_powerpoint_tool: "📊",
-};
+function getToolIcon(toolName: string): string {
+  if (toolName === "generate_powerpoint_tool") {
+    return "📊";
+  }
+  if (toolName.toLowerCase().includes("workiq")) {
+    return "🏢";
+  }
+  return "🔧";
+}
 
-const TOOL_LABELS: Record<string, string> = {
-  query_ms_docs_tool: "MS Docs Search",
-  foundry_deep_research_tool: "Foundry Deep Research",
-  query_workiq_tool: "Work IQ (M365)",
-  work_iq_tool: "Work IQ (M365)",
-  foundry_knowledge_tool: "Foundry IQ Knowledge",
-  generate_powerpoint_tool: "PowerPoint Generator",
-};
+function getToolLabel(toolName: string): string {
+  if (toolName === "generate_powerpoint_tool") {
+    return "PowerPoint Generator";
+  }
+  if (toolName.toLowerCase().includes("workiq")) {
+    return `Work IQ MCP: ${toolName}`;
+  }
+  return toolName;
+}
 
 interface Props {
   execution: ToolExecution;
@@ -27,8 +29,8 @@ interface Props {
 
 export default function ToolExecutionCard({ execution }: Props) {
   const [expanded, setExpanded] = useState(false);
-  const icon = TOOL_ICONS[execution.toolName] ?? "🔧";
-  const label = TOOL_LABELS[execution.toolName] ?? execution.toolName;
+  const icon = getToolIcon(execution.toolName);
+  const label = getToolLabel(execution.toolName);
 
   const isRunning = execution.status === "running";
   const duration =

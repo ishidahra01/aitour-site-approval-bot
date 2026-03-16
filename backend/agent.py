@@ -1,12 +1,11 @@
 """
 Site Approval Bot — Copilot SDK orchestrator.
 
-Manages the lifecycle of GitHub Copilot SDK sessions and registers
-all custom tools (Work IQ, Foundry IQ enterprise knowledge, Foundry deep
-research, PowerPoint).
+Manages the lifecycle of GitHub Copilot SDK sessions, attaches the optional
+Work IQ MCP server, and registers the local PowerPoint generation tool.
 
-An AI agent that automatically collects past discussion context via Work IQ
-and generates structured site approval reports when municipality permission
+An AI agent that collects past discussion context via Work IQ MCP and
+generates structured site approval reports when municipality permission
 emails arrive.
 """
 from __future__ import annotations
@@ -14,18 +13,13 @@ from __future__ import annotations
 import asyncio
 import logging
 import os
-import shutil
 import json
 from typing import Any, AsyncIterator, Dict, Optional
 
 from copilot import CopilotClient, PermissionHandler
 
 from tools import (
-    foundry_deep_research_tool,
-    foundry_knowledge_tool,
     generate_powerpoint_tool,
-    query_ms_docs_tool,
-    work_iq_tool,
 )
 from skills import SITE_APPROVAL_SYSTEM_MESSAGE
 
@@ -158,7 +152,7 @@ def _build_mcp_servers() -> Dict[str, Any]:
         "workiq": {
             "type": "local",
             "command": "npx",
-            "args": ["-y", "@microsoft/workiq", "mcp"],
+            "args": ["-y", "@microsoft/workiq", "--account", "hishida@MngEnvMCAP873995.onmicrosoft.com", "mcp"],
             "tools": ["*"],
         }
     }
@@ -248,13 +242,7 @@ class SupportAgent:
                 "streaming": True,
                 "system_message": {"content": SITE_APPROVAL_SYSTEM_MESSAGE},
                 "on_permission_request": PermissionHandler.approve_all,
-                "tools": [
-                    work_iq_tool,
-                    foundry_knowledge_tool,
-                    foundry_deep_research_tool,
-                    generate_powerpoint_tool,
-                    query_ms_docs_tool,
-                ],
+                "tools": [generate_powerpoint_tool],
             }
 
             mcp_servers = _build_mcp_servers()

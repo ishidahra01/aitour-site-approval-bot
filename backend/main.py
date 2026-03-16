@@ -52,7 +52,7 @@ async def lifespan(app: FastAPI):
 
 app = FastAPI(
     title="Site Approval Bot API",
-    description="Backend for the Site Approval Bot powered by GitHub Copilot SDK and Work IQ",
+    description="Backend for the Site Approval Bot powered by GitHub Copilot SDK, Work IQ MCP, and local PowerPoint generation",
     version="1.0.0",
     lifespan=lifespan,
 )
