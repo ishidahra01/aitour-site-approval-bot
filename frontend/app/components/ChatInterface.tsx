@@ -367,7 +367,7 @@ export default function ChatInterface() {
               Site Approval Bot
             </h1>
             <p className="text-xs text-gray-500 dark:text-gray-400">
-              Powered by GitHub Copilot SDK · Work IQ
+              Powered by GitHub Copilot SDK · WorkIQ（M365 Copilot）
             </p>
           </div>
         </div>

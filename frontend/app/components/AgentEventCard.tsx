@@ -7,6 +7,17 @@ interface Props {
   event: AgentEvent;
 }
 
+function GitHubCopilotBadge() {
+  return (
+    <span className="flex items-center gap-1 shrink-0 text-xs font-semibold text-purple-700 dark:text-purple-300 bg-purple-100 dark:bg-purple-900/40 border border-purple-200 dark:border-purple-700 px-1.5 py-0.5 rounded-full">
+      <svg viewBox="0 0 16 16" className="w-3 h-3" fill="currentColor" aria-hidden="true">
+        <path d="M4 3h8v9H4V3zm8-1H4C3.45 2 3 2.45 3 3v9c0 .55.45 1 1 1h3.5l1 1.5h-.75a.25.25 0 0 0 0 .5h2.5a.25.25 0 0 0 0-.5h-.75l1-1.5H12c.55 0 1-.45 1-1V3c0-.55-.45-1-1-1zm-2 4.5a1 1 0 1 1-2.001.001A1 1 0 0 1 10 6.5zm-4 0a1 1 0 1 1-2.001.001A1 1 0 0 1 6 6.5z"/>
+      </svg>
+      GitHub Copilot
+    </span>
+  );
+}
+
 export default function AgentEventCard({ event }: Props) {
   const [expanded, setExpanded] = useState(false);
 
@@ -19,7 +30,7 @@ export default function AgentEventCard({ event }: Props) {
           transition-colors text-left"
       >
         <div className="flex items-center gap-2 min-w-0">
-          <span>🧠</span>
+          <GitHubCopilotBadge />
           <span className="font-medium text-gray-700 dark:text-gray-300 truncate">
             {event.eventName}
           </span>
