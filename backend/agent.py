@@ -33,6 +33,16 @@ _SUPPRESSED_AGENT_EVENTS = {
     "tool.execution_start",
     "tool.execution_complete",
     "session.idle",
+    # Noisy / low-value events filtered from the UI
+    "pending_messages.modified",
+    "user.message",
+    "assistant.turn_start",
+    "session.usage_info",
+    "assistant.reasoning_delta",
+    "assistant.reasoning_summary_delta",
+    "assistant.reasoning_summary",
+    "conversation.message_added",
+    "conversation.updated",
 }
 
 

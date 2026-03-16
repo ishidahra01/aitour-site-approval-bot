@@ -8,7 +8,7 @@ function getToolIcon(toolName: string): string {
     return "📊";
   }
   if (toolName.toLowerCase().includes("workiq")) {
-    return "🏢";
+    return "🤖";
   }
   return "🔧";
 }
@@ -18,7 +18,7 @@ function getToolLabel(toolName: string): string {
     return "PowerPoint Generator";
   }
   if (toolName.toLowerCase().includes("workiq")) {
-    return `Work IQ MCP: ${toolName}`;
+    return `WorkIQ（M365 Copilot）: ${toolName}`;
   }
   return toolName;
 }
