@@ -21,7 +21,7 @@ from copilot import CopilotClient, PermissionHandler
 from tools import (
     generate_powerpoint_tool,
 )
-from skills import SITE_APPROVAL_SYSTEM_MESSAGE
+from skills import SKILLS_DIR
 
 logger = logging.getLogger(__name__)
 
@@ -240,7 +240,7 @@ class SupportAgent:
                 "session_id": session_id,
                 "model": model,
                 "streaming": True,
-                "system_message": {"content": SITE_APPROVAL_SYSTEM_MESSAGE},
+                "skill_directories": [SKILLS_DIR],
                 "on_permission_request": PermissionHandler.approve_all,
                 "tools": [generate_powerpoint_tool],
             }
