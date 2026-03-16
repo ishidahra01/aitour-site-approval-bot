@@ -7,6 +7,8 @@ const TOOL_ICONS: Record<string, string> = {
   query_ms_docs_tool: "📖",
   foundry_deep_research_tool: "🔬",
   query_workiq_tool: "🏢",
+  work_iq_tool: "🏢",
+  foundry_knowledge_tool: "🗄️",
   generate_powerpoint_tool: "📊",
 };
 
@@ -14,6 +16,8 @@ const TOOL_LABELS: Record<string, string> = {
   query_ms_docs_tool: "MS Docs Search",
   foundry_deep_research_tool: "Foundry Deep Research",
   query_workiq_tool: "Work IQ (M365)",
+  work_iq_tool: "Work IQ (M365)",
+  foundry_knowledge_tool: "Foundry IQ Knowledge",
   generate_powerpoint_tool: "PowerPoint Generator",
 };
 

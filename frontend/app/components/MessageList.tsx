@@ -155,25 +155,24 @@ export default function MessageList({ messages }: Props) {
   if (messages.length === 0) {
     return (
       <div className="flex-1 flex flex-col items-center justify-center text-center p-8">
-        <div className="text-5xl mb-4">🤖</div>
+        <div className="text-5xl mb-4">🗼</div>
         <h2 className="text-xl font-semibold text-gray-700 dark:text-gray-300 mb-2">
-          Microsoft Support Agent
+          Site Approval Bot
         </h2>
         <p className="text-gray-500 dark:text-gray-400 max-w-md text-sm leading-relaxed">
-          Ask me any technical question about Microsoft products. I can search official
-          documentation, perform deep research, access your M365 context, and generate
-          PowerPoint reports.
+          自治体からの設置許可メールをトリガーに、過去の全議論を自動で収集し
+          承認レポートを生成します。
         </p>
         <div className="mt-6 flex flex-wrap gap-2 justify-center">
           {[
-            "Entra ID conditional access issue",
-            "Azure AD authentication failure",
-            "Teams meeting recording policy",
+            "A市 公園用地の設置条件を教えて",
+            "鈴木さんの設計制約を確認して",
+            "スモールセルのコスト承認状況は？",
           ].map((hint) => (
             <span
               key={hint}
-              className="px-3 py-1.5 bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300
-                rounded-full text-xs border border-blue-200 dark:border-blue-700"
+              className="px-3 py-1.5 bg-green-50 dark:bg-green-900/30 text-green-700 dark:text-green-300
+                rounded-full text-xs border border-green-200 dark:border-green-700"
             >
               {hint}
             </span>

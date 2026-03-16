@@ -2,8 +2,8 @@ import type { Metadata } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "Microsoft Support Agent",
-  description: "Enterprise support agent powered by GitHub Copilot SDK, Azure AI Foundry, and Work IQ",
+  title: "Site Approval Bot",
+  description: "Site Approval Bot powered by GitHub Copilot SDK and Work IQ — automates approval workflows for site installation requests",
 };
 
 export default function RootLayout({
