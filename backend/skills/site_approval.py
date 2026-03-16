@@ -1,10 +1,23 @@
 """
 Site Approval Skill.
 
-Defines the system message and workflow for the Site Approval Bot.
+Defines the skill directory path and fallback system message for the Site Approval Bot.
 The agent collects past discussion context via Work IQ MCP, analyzes it,
 and generates a structured approval report for a site installation request.
+
+The preferred way to load this skill is via ``skill_directories`` in the
+``SessionConfig`` — this points the Copilot SDK to the ``site-approval/``
+subdirectory (which contains ``SKILL.md``) and automatically injects the
+skill's instructions into every session.
+
+``SITE_APPROVAL_SYSTEM_MESSAGE`` is kept as a plain-text fallback for
+contexts where the SDK's skill-directory feature is unavailable.
 """
+import os
+
+#: Absolute path to the parent directory that contains skill subdirectories.
+#: Pass this to ``skill_directories`` in the Copilot SDK ``SessionConfig``.
+SKILLS_DIR: str = os.path.dirname(os.path.abspath(__file__))
 
 SITE_APPROVAL_SYSTEM_MESSAGE = """
 <role>
