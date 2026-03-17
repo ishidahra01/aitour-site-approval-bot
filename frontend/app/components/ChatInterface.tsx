@@ -6,13 +6,31 @@ import { AgentEvent, ChatMessage, Model, ServerEvent, ToolExecution } from "@/ap
 import { createSession, deleteSession, fetchModels, connectWebSocket } from "@/app/lib/api";
 import MessageList from "./MessageList";
 import ModelSelector from "./ModelSelector";
-import ApprovalReportPanel from "./ApprovalReportPanel";
+import ApprovalReportPanel, { PanelContentType } from "./ApprovalReportPanel";
 
-// Pre-built trigger prompt for the municipality email demo flow
+// Pre-built trigger prompts for each demo scenario
 const MUNICIPALITY_TRIGGER_PROMPT =
   "A市から設置許可メールが到着しました。" +
   "Work IQを使って中村さんの自治体調整経緯、鈴木さんの設計制約、" +
   "スモールセルのコスト承認状況を収集し、承認レポートを生成してください。";
+
+const COMPLIANCE_CHECK_PROMPT =
+  "Work IQを使って社内技術基準・設計ガイドラインと、A市の顧客要求・" +
+  "現在の設計検討状況を収集してください。" +
+  "各要件について適合度（適合/一部適合/非適合/未確認）を評価し、" +
+  "視覚的な比較表とサマリーを含むHTMLレポートを生成してください。";
+
+const PROPOSAL_PROMPT =
+  "Work IQを使ってA市基地局設置プロジェクトの背景・技術仕様・" +
+  "ステークホルダー・スケジュール・コスト情報を収集し、" +
+  "顧客向けの提案資料をHTMLで作成してください。";
+
+const MOCK_APP_PROMPT =
+  "Work IQを使ってA市基地局設置プロジェクトの課題・アクションアイテム・" +
+  "担当者情報を収集し、収集した実際のデータを使った" +
+  "プロジェクト進捗管理モックアプリをHTMLで作成してください。" +
+  "各タスクのステータス（完了/進行中/未着手）、担当者、期限、優先度が" +
+  "確認・操作できるインタラクティブなアプリを実装してください。";
 
 /** Extract the site-approval-report code block content from a message string. */
 function extractApprovalReport(content: string): string | null {
@@ -27,6 +45,20 @@ function extractApprovalReport(content: string): string | null {
     : content.slice(reportStart); // still streaming
 }
 
+/** Extract html-output code block. Returns content + whether the block is complete. */
+function extractHtmlOutput(content: string): { content: string; complete: boolean } | null {
+  const startMarker = "```html-output\n";
+  const endMarker = "\n```";
+  const startIdx = content.indexOf(startMarker);
+  if (startIdx === -1) return null;
+  const reportStart = startIdx + startMarker.length;
+  const endIdx = content.indexOf(endMarker, reportStart);
+  if (endIdx !== -1) {
+    return { content: content.slice(reportStart, endIdx), complete: true };
+  }
+  return { content: content.slice(reportStart), complete: false };
+}
+
 export default function ChatInterface() {
   const [sessionId, setSessionId] = useState<string | null>(null);
   const [messages, setMessages] = useState<ChatMessage[]>([]);
@@ -34,8 +66,9 @@ export default function ChatInterface() {
   const [selectedModel, setSelectedModel] = useState("gpt-4o");
   const [inputValue, setInputValue] = useState("");
   const [isLoading, setIsLoading] = useState(false);
-  const [approvalReport, setApprovalReport] = useState<string | null>(null);
-  const [reportStreaming, setReportStreaming] = useState(false);
+  const [panelContent, setPanelContent] = useState<string | null>(null);
+  const [panelContentType, setPanelContentType] = useState<PanelContentType>("text");
+  const [panelStreaming, setPanelStreaming] = useState(false);
 
   const wsRef = useRef<WebSocket | null>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
@@ -81,15 +114,27 @@ export default function ChatInterface() {
     };
   }, [initSession]);
 
-  // Scan latest assistant message for approval report content
+  // Scan latest assistant message for panel content (HTML or text report)
   useEffect(() => {
     const assistantMessages = messages.filter((m) => m.role === "assistant");
     if (assistantMessages.length === 0) return;
     const latest = assistantMessages[assistantMessages.length - 1];
-    const extracted = extractApprovalReport(latest.content);
-    if (extracted !== null) {
-      setApprovalReport(extracted);
-      setReportStreaming(latest.isStreaming ?? false);
+
+    // HTML output takes priority
+    const htmlResult = extractHtmlOutput(latest.content);
+    if (htmlResult !== null) {
+      setPanelContent(htmlResult.content);
+      setPanelContentType("html");
+      setPanelStreaming(!htmlResult.complete || (latest.isStreaming ?? false));
+      return;
+    }
+
+    // Fall back to plain-text approval report
+    const textContent = extractApprovalReport(latest.content);
+    if (textContent !== null) {
+      setPanelContent(textContent);
+      setPanelContentType("text");
+      setPanelStreaming(latest.isStreaming ?? false);
     }
   }, [messages]);
 
@@ -339,14 +384,27 @@ export default function ChatInterface() {
       deleteSession(sessionId);
     }
     setMessages([]);
-    setApprovalReport(null);
-    setReportStreaming(false);
+    setPanelContent(null);
+    setPanelContentType("text");
+    setPanelStreaming(false);
     setIsLoading(false);
     await initSession();
   };
 
   const handleMunicipalityTrigger = () => {
     sendMessage(MUNICIPALITY_TRIGGER_PROMPT);
+  };
+
+  const handleComplianceCheck = () => {
+    sendMessage(COMPLIANCE_CHECK_PROMPT);
+  };
+
+  const handleProposalCreation = () => {
+    sendMessage(PROPOSAL_PROMPT);
+  };
+
+  const handleMockApp = () => {
+    sendMessage(MOCK_APP_PROMPT);
   };
 
   // -------------------------------------------------------------------------
@@ -391,20 +449,47 @@ export default function ChatInterface() {
         </div>
       </header>
 
-      {/* Municipality trigger banner */}
+      {/* Demo scenario buttons */}
       <div className="shrink-0 px-4 py-2 bg-amber-50 dark:bg-amber-950/40
-        border-b border-amber-200 dark:border-amber-800 flex items-center gap-3">
-        <span className="text-sm text-amber-700 dark:text-amber-300 font-medium">
-          📬 A市から設置許可メールが到着
-        </span>
-        <button
-          onClick={handleMunicipalityTrigger}
-          disabled={isLoading}
-          className="text-xs px-3 py-1 rounded-lg bg-amber-500 hover:bg-amber-600 text-white
-            disabled:opacity-50 disabled:cursor-not-allowed transition-colors font-medium shrink-0"
-        >
-          承認フローを開始
-        </button>
+        border-b border-amber-200 dark:border-amber-800">
+        <div className="flex flex-wrap items-center gap-2">
+          <span className="text-xs text-amber-700 dark:text-amber-300 font-medium shrink-0">
+            📬 A市から設置許可メールが到着
+          </span>
+          <button
+            onClick={handleMunicipalityTrigger}
+            disabled={isLoading}
+            className="text-xs px-3 py-1 rounded-lg bg-amber-500 hover:bg-amber-600 text-white
+              disabled:opacity-50 disabled:cursor-not-allowed transition-colors font-medium shrink-0"
+          >
+            承認レポート生成
+          </button>
+          <span className="text-xs text-gray-300 dark:text-gray-600 hidden sm:inline">|</span>
+          <button
+            onClick={handleComplianceCheck}
+            disabled={isLoading}
+            className="text-xs px-3 py-1 rounded-lg bg-blue-500 hover:bg-blue-600 text-white
+              disabled:opacity-50 disabled:cursor-not-allowed transition-colors font-medium shrink-0"
+          >
+            📊 適合度確認
+          </button>
+          <button
+            onClick={handleProposalCreation}
+            disabled={isLoading}
+            className="text-xs px-3 py-1 rounded-lg bg-indigo-500 hover:bg-indigo-600 text-white
+              disabled:opacity-50 disabled:cursor-not-allowed transition-colors font-medium shrink-0"
+          >
+            📄 提案資料作成
+          </button>
+          <button
+            onClick={handleMockApp}
+            disabled={isLoading}
+            className="text-xs px-3 py-1 rounded-lg bg-violet-500 hover:bg-violet-600 text-white
+              disabled:opacity-50 disabled:cursor-not-allowed transition-colors font-medium shrink-0"
+          >
+            🛠 モックアプリ作成
+          </button>
+        </div>
       </div>
 
       {/* 2-pane main area */}
@@ -464,7 +549,11 @@ export default function ChatInterface() {
 
         {/* Right pane — Approval Report */}
         <div className="w-[45%] shrink-0 flex flex-col min-h-0">
-          <ApprovalReportPanel report={approvalReport} isStreaming={reportStreaming} />
+          <ApprovalReportPanel
+            content={panelContent}
+            contentType={panelContentType}
+            isStreaming={panelStreaming}
+          />
         </div>
       </div>
     </div>
