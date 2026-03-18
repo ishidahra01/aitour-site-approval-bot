@@ -1,12 +1,13 @@
 "use client";
 
-import { useState, useEffect, useRef, useCallback } from "react";
+import { useState, useEffect, useRef, useCallback, useMemo } from "react";
 import { v4 as uuidv4 } from "uuid";
 import { AgentEvent, ChatMessage, Model, ServerEvent, ToolExecution } from "@/app/lib/types";
 import { createSession, deleteSession, fetchModels, connectWebSocket } from "@/app/lib/api";
+import { extractUrls } from "@/app/lib/utils";
 import MessageList from "./MessageList";
 import ModelSelector from "./ModelSelector";
-import ApprovalReportPanel, { PanelContentType } from "./ApprovalReportPanel";
+import ApprovalReportPanel, { PanelContentType, WorkIQSource } from "./ApprovalReportPanel";
 
 // Pre-built trigger prompts for each demo scenario
 const MUNICIPALITY_TRIGGER_PROMPT =
@@ -72,6 +73,30 @@ export default function ChatInterface() {
 
   const wsRef = useRef<WebSocket | null>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
+
+  // -------------------------------------------------------------------------
+  // Derive Work IQ sources from the latest assistant message's tool executions
+  // -------------------------------------------------------------------------
+
+  const workiqSources = useMemo<WorkIQSource[]>(() => {
+    const assistantMessages = messages.filter((m) => m.role === "assistant");
+    if (assistantMessages.length === 0) return [];
+    const latest = assistantMessages[assistantMessages.length - 1];
+    const sources: WorkIQSource[] = [];
+    for (const te of latest.toolExecutions ?? []) {
+      if (
+        te.toolName.toLowerCase().includes("workiq") &&
+        te.status === "complete" &&
+        te.result
+      ) {
+        const urls = extractUrls(te.result);
+        if (urls.length > 0) {
+          sources.push({ toolName: te.toolName, urls });
+        }
+      }
+    }
+    return sources;
+  }, [messages]);
 
   // -------------------------------------------------------------------------
   // Session management
@@ -553,6 +578,7 @@ export default function ChatInterface() {
             content={panelContent}
             contentType={panelContentType}
             isStreaming={panelStreaming}
+            workiqSources={workiqSources}
           />
         </div>
       </div>
