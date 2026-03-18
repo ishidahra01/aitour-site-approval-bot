@@ -3,12 +3,87 @@
 import { useRef, useEffect } from "react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
+import { useId } from "react";
 import { ChatMessage } from "@/app/lib/types";
-import AgentEventCard from "./AgentEventCard";
+import { extractUrls } from "@/app/lib/utils";
+import AgentLogPanel from "./AgentLogPanel";
 import ToolExecutionCard from "./ToolExecutionCard";
 
 interface Props {
   messages: ChatMessage[];
+}
+
+/** Work IQ gradient icon (small, for inline use). */
+function WorkIQIconSmall({ className = "w-3.5 h-3.5" }: { className?: string }) {
+  const uid = useId();
+  const g1 = `msg-wiq-a-${uid}`;
+  const g2 = `msg-wiq-b-${uid}`;
+  return (
+    <svg viewBox="0 0 24 24" className={className} fill="none" aria-hidden="true">
+      <defs>
+        <linearGradient id={g1} x1="2" y1="2" x2="13" y2="14" gradientUnits="userSpaceOnUse">
+          <stop stopColor="#18BFEF" />
+          <stop offset="1" stopColor="#5C62D6" />
+        </linearGradient>
+        <linearGradient id={g2} x1="11" y1="10" x2="22" y2="22" gradientUnits="userSpaceOnUse">
+          <stop stopColor="#8A2BE2" />
+          <stop offset="1" stopColor="#EC4899" />
+        </linearGradient>
+      </defs>
+      <path d="M12 12C12 12 5.5 11.5 4.5 7.5C3.5 3.5 6.5 1.5 9.5 2.5C12.5 3.5 13 7 12 12Z" fill={`url(#${g1})`} />
+      <path d="M12 12C12 12 18.5 12.5 19.5 16.5C20.5 20.5 17.5 22.5 14.5 21.5C11.5 20.5 11 17 12 12Z" fill={`url(#${g2})`} />
+    </svg>
+  );
+}
+
+/**
+ * Work IQ Sources bar shown below AI messages when Work IQ tool results
+ * contain source URLs.
+ */
+function WorkIQSourcesBar({ message }: { message: ChatMessage }) {
+  const workiqTools = (message.toolExecutions ?? []).filter(
+    (te) =>
+      te.toolName.toLowerCase().includes("workiq") &&
+      te.status === "complete" &&
+      !!te.result
+  );
+
+  const allUrls = workiqTools.flatMap((te) => extractUrls(te.result ?? ""));
+  const uniqueUrls = [...new Set(allUrls)];
+
+  if (uniqueUrls.length === 0) return null;
+
+  return (
+    <div
+      className="mt-1 px-3 py-2 rounded-xl
+        bg-gradient-to-r from-cyan-50/80 to-purple-50/80
+        dark:from-cyan-900/10 dark:to-purple-900/10
+        border border-purple-200 dark:border-purple-800/50
+        text-xs w-full"
+    >
+      <p className="flex items-center gap-1 font-semibold text-purple-700 dark:text-purple-300 mb-1.5">
+        <WorkIQIconSmall />
+        Work IQ Sources
+      </p>
+      <ul className="space-y-0.5">
+        {uniqueUrls.map((url, i) => (
+          <li key={i} className="flex items-start gap-1">
+            <span className="text-purple-400 dark:text-purple-600 shrink-0 mt-px">
+              {i + 1}.
+            </span>
+            <a
+              href={url}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-blue-600 dark:text-blue-400 hover:underline break-all"
+            >
+              {url}
+            </a>
+          </li>
+        ))}
+      </ul>
+    </div>
+  );
 }
 
 function MessageBubble({ message }: { message: ChatMessage }) {
@@ -25,12 +100,10 @@ function MessageBubble({ message }: { message: ChatMessage }) {
       )}
 
       <div className={`max-w-[80%] ${isUser ? "items-end" : "items-start"} flex flex-col`}>
-        {/* Agent execution logs (Copilot SDK events) */}
+        {/* Agent execution logs – GitHub Copilot Activity Log style */}
         {!isUser && message.agentEvents && message.agentEvents.length > 0 && (
           <div className="w-full mb-2">
-            {message.agentEvents.map((event) => (
-              <AgentEventCard key={event.id} event={event} />
-            ))}
+            <AgentLogPanel events={message.agentEvents} />
           </div>
         )}
 
@@ -101,6 +174,9 @@ function MessageBubble({ message }: { message: ChatMessage }) {
             )}
           </div>
         )}
+
+        {/* Work IQ source links (below AI message bubble) */}
+        {!isUser && <WorkIQSourcesBar message={message} />}
 
         {/* Timestamp */}
         <span className="text-xs text-gray-400 mt-1 px-1">
@@ -192,3 +268,4 @@ export default function MessageList({ messages }: Props) {
     </div>
   );
 }
+
