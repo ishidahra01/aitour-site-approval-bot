@@ -233,17 +233,17 @@ export default function MessageList({ messages }: Props) {
       <div className="flex-1 flex flex-col items-center justify-center text-center p-8">
         <div className="text-5xl mb-4">🗼</div>
         <h2 className="text-xl font-semibold text-gray-700 dark:text-gray-300 mb-2">
-          Site Approval Bot
+          Site Project Copilot
         </h2>
         <p className="text-gray-500 dark:text-gray-400 max-w-md text-sm leading-relaxed">
-          自治体からの設置許可メールをトリガーに、過去の全議論を自動で収集し
-          承認レポートを生成します。
+          基地局設置PJに関する情報収集、状況整理、比較分析、提案資料作成、
+          PJ支援コンテンツの生成をまとめて支援します。
         </p>
         <div className="mt-6 flex flex-wrap gap-2 justify-center">
           {[
-            "A市 公園用地の設置条件を教えて",
-            "鈴木さんの設計制約を確認して",
-            "スモールセルのコスト承認状況は？",
+            "A市案件の未解決事項を整理して",
+            "社内基準と顧客要求の差分を比較して",
+            "PJ進捗を見える化するツール案を作って",
           ].map((hint) => (
             <span
               key={hint}

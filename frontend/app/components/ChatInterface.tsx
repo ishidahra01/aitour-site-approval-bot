@@ -9,29 +9,31 @@ import MessageList from "./MessageList";
 import ModelSelector from "./ModelSelector";
 import ApprovalReportPanel, { PanelContentType, WorkIQSource } from "./ApprovalReportPanel";
 
-// Pre-built trigger prompts for each demo scenario
+// Pre-built trigger prompts for common project support tasks
 const MUNICIPALITY_TRIGGER_PROMPT =
   "A市から設置許可メールが到着しました。" +
   "Work IQを使って中村さんの自治体調整経緯、鈴木さんの設計制約、" +
-  "スモールセルのコスト承認状況を収集し、承認レポートを生成してください。";
+  "スモールセルのコスト承認状況を収集してください。" +
+  "この案件の進行可否を判断するために、自治体条件・RF設計条件・" +
+  "未解決事項・推奨アクションを日本語で整理し、必要に応じて承認レポートも生成してください。";
 
 const COMPLIANCE_CHECK_PROMPT =
   "Work IQを使って社内技術基準・設計ガイドラインと、A市の顧客要求・" +
   "現在の設計検討状況を収集してください。" +
   "各要件について適合度（適合/一部適合/非適合/未確認）を評価し、" +
-  "視覚的な比較表とサマリーを含むHTMLレポートを生成してください。";
+  "差分、リスク、追加確認事項が分かる比較表とサマリーを含むHTML成果物を生成してください。";
 
 const PROPOSAL_PROMPT =
   "Work IQを使ってA市基地局設置プロジェクトの背景・技術仕様・" +
   "ステークホルダー・スケジュール・コスト情報を収集し、" +
-  "顧客向けの提案資料をHTMLで作成してください。";
+  "顧客説明と社内合意形成の両方に使える提案資料をHTMLで作成してください。";
 
 const MOCK_APP_PROMPT =
   "Work IQを使ってA市基地局設置プロジェクトの課題・アクションアイテム・" +
   "担当者情報を収集し、収集した実際のデータを使った" +
-  "プロジェクト進捗管理モックアプリをHTMLで作成してください。" +
+  "プロジェクト進捗・課題管理ツールをHTMLで作成してください。" +
   "各タスクのステータス（完了/進行中/未着手）、担当者、期限、優先度が" +
-  "確認・操作できるインタラクティブなアプリを実装してください。";
+  "確認・操作でき、日々のPJ運営に使えるインタラクティブなアプリを実装してください。";
 
 /** Extract the site-approval-report code block content from a message string. */
 function extractApprovalReport(content: string): string | null {
@@ -447,7 +449,7 @@ export default function ChatInterface() {
           </div>
           <div>
             <h1 className="text-sm font-semibold text-gray-900 dark:text-gray-100">
-              Site Approval Bot
+              Site Project Copilot
             </h1>
             <p className="text-xs text-gray-500 dark:text-gray-400">
               Powered by GitHub Copilot SDK · WorkIQ（M365 Copilot）
@@ -474,12 +476,15 @@ export default function ChatInterface() {
         </div>
       </header>
 
-      {/* Demo scenario buttons */}
+      {/* Project support task buttons */}
       <div className="shrink-0 px-4 py-2 bg-amber-50 dark:bg-amber-950/40
         border-b border-amber-200 dark:border-amber-800">
         <div className="flex flex-wrap items-center gap-2">
           <span className="text-xs text-amber-700 dark:text-amber-300 font-medium shrink-0">
-            📬 A市から設置許可メールが到着
+            PJ支援タスク
+          </span>
+          <span className="text-xs text-amber-600 dark:text-amber-400 shrink-0 hidden md:inline">
+            例: A市の設置許可メール起点
           </span>
           <button
             onClick={handleMunicipalityTrigger}
@@ -487,7 +492,7 @@ export default function ChatInterface() {
             className="text-xs px-3 py-1 rounded-lg bg-amber-500 hover:bg-amber-600 text-white
               disabled:opacity-50 disabled:cursor-not-allowed transition-colors font-medium shrink-0"
           >
-            承認レポート生成
+            承認判断を整理
           </button>
           <span className="text-xs text-gray-300 dark:text-gray-600 hidden sm:inline">|</span>
           <button
@@ -496,7 +501,7 @@ export default function ChatInterface() {
             className="text-xs px-3 py-1 rounded-lg bg-blue-500 hover:bg-blue-600 text-white
               disabled:opacity-50 disabled:cursor-not-allowed transition-colors font-medium shrink-0"
           >
-            📊 適合度確認
+            📊 要件適合を比較
           </button>
           <button
             onClick={handleProposalCreation}
@@ -504,7 +509,7 @@ export default function ChatInterface() {
             className="text-xs px-3 py-1 rounded-lg bg-indigo-500 hover:bg-indigo-600 text-white
               disabled:opacity-50 disabled:cursor-not-allowed transition-colors font-medium shrink-0"
           >
-            📄 提案資料作成
+            📄 提案資料を作成
           </button>
           <button
             onClick={handleMockApp}
@@ -512,7 +517,7 @@ export default function ChatInterface() {
             className="text-xs px-3 py-1 rounded-lg bg-violet-500 hover:bg-violet-600 text-white
               disabled:opacity-50 disabled:cursor-not-allowed transition-colors font-medium shrink-0"
           >
-            🛠 モックアプリ作成
+            🛠 進捗ツールを作成
           </button>
         </div>
       </div>
@@ -572,7 +577,7 @@ export default function ChatInterface() {
           </div>
         </div>
 
-        {/* Right pane — Approval Report */}
+        {/* Right pane — Generated output */}
         <div className="w-[45%] shrink-0 flex flex-col min-h-0">
           <ApprovalReportPanel
             content={panelContent}

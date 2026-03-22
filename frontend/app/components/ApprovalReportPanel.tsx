@@ -102,7 +102,7 @@ export default function ApprovalReportPanel({
           エージェントが Work IQ からコンテキストを収集・分析した後に結果がここに表示されます。
         </p>
         <p className="text-xs text-gray-300 dark:text-gray-600 mt-3 max-w-xs">
-          下のシナリオボタンを押してデモを開始してください。
+          下のPJ支援タスクを選ぶか、自由入力で依頼してください。
         </p>
       </div>
     );
@@ -130,7 +130,7 @@ export default function ApprovalReportPanel({
         <div className="flex items-center gap-2">
           <span className="text-base">{isHtml ? "🖥️" : "📋"}</span>
           <span className="text-sm font-semibold text-gray-800 dark:text-gray-200">
-            {isHtml ? "生成コンテンツ" : "Site Approval Report"}
+            {isHtml ? "PJ支援コンテンツ" : "承認レポート"}
           </span>
           {isStreaming && (
             <span className="flex items-center gap-1 text-xs text-blue-500 animate-pulse">
